@@ -10,14 +10,14 @@
 #include <Dusk2Dawn.h>    //https://github.com/dmkishi/Dusk2Dawn
 
 
-#define PIR_1 2
-#define PIR_2 3
-#define SKIP_BUTTON 5
-#define SERVO_1_PIN 10
-#define SERVO_1_POWER 6
-#define SERVO_2_PIN 9
-#define SERVO_2_POWER 7
-#define STATUS_LED 4
+#define PIR_1 14
+#define PIR_2 13
+#define SKIP_BUTTON 20
+#define SERVO_1_PIN 5
+#define SERVO_1_POWER 17
+#define SERVO_2_PIN 6
+#define SERVO_2_POWER 17
+#define STATUS_LED 2
 
 Servo servo1;
 Servo servo2;
