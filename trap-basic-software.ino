@@ -2,7 +2,7 @@
 #define LAT -43.388018
 #define LONG 172.525346
 
-#define MINUTES_AFTER_SS 60       //Number of minutes after sunset before starting trap
+#define MINUTES_AFTER_SS 150       //Number of minutes after sunset before starting trap
 #define MINUTES_BEFORE_SR 60      //Number of minutes before sunrise to stop trap
 
 #include <RTClib.h>       //https://github.com/adafruit/RTClib
@@ -12,7 +12,9 @@
 
 #define PIR_1 14
 #define PIR_2 13
-#define SKIP_BUTTON 20
+
+#define SKIP_BUTTON 20 // !NOT mounted. DO NOT USE. Pin reference only. 
+
 #define SERVO_1_PIN 5
 #define SERVO_1_POWER 17
 #define SERVO_2_PIN 6
