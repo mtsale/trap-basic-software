@@ -10,7 +10,7 @@
 #include <Dusk2Dawn.h>    //https://github.com/dmkishi/Dusk2Dawn
 
 
-#define PIR_1 14
+#define PIR_1 2
 #define PIR_2 13
 
 #define SKIP_BUTTON 20 // !NOT mounted. DO NOT USE. Pin reference only. 
@@ -190,10 +190,6 @@ void printDateTime(DateTime now) {
 void waitFor(int pin, int level) {
   while(true) {
     waitForNight();
-    if (digitalRead(SKIP_BUTTON) == LOW) {
-      Serial.println("Skip button used");
-      break;
-    }
     if (digitalRead(pin) == level) {
       Serial.println("triggered");
       break;
@@ -219,10 +215,6 @@ void waitForNight() {
     }
     if (minutesFromMidnight > startMinute) {
       Serial.println("late night");
-      break;
-    }
-    if (digitalRead(SKIP_BUTTON) == LOW) {
-      Serial.println("Skip button used");
       break;
     }
     Serial.println("waiting for night");
