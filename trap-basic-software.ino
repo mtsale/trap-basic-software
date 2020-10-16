@@ -10,8 +10,8 @@
 #include <Dusk2Dawn.h>    //https://github.com/dmkishi/Dusk2Dawn
 
 
-#define PIR_1 2
-#define PIR_2 13
+#define PIR_1 7     // Using PIR_3 for now. Original PIR_1 jumpered. 
+#define PIR_2 13 
 
 #define SKIP_BUTTON 20 // !NOT mounted. DO NOT USE. Pin reference only. 
 
