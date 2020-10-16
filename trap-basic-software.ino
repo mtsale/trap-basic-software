@@ -24,7 +24,7 @@
 Servo servo1;
 Servo servo2;
 
-RTC_PCF8523 rtc;
+RTC_DS1307 rtc;
 
 bool runAtDay = true;
 
