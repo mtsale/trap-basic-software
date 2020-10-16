@@ -73,7 +73,12 @@ void setup() {
   s1(0);
   s2(0);  
 
+  // Setup Servo 2 (back door) to 45 degrees
   mySleep(10000);
+  s2(45);
+  mySleep(10000);
+
+  // PIR 1 Wait for signal then trigger
   Serial.println("Waiting for PIR 1");
   waitFor(PIR_1, HIGH);
   Serial.println("Sweeping servo 1");
