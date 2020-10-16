@@ -20,6 +20,7 @@
 #define SERVO_2_PIN 6
 #define SERVO_2_POWER 17
 #define STATUS_LED 2
+#define ENABLE_6V A0
 
 Servo servo1;
 Servo servo2;
@@ -33,7 +34,7 @@ Dusk2Dawn d2d_chch(LAT, LONG, 12);
 void setup() {
   pinMode(PIR_1, INPUT);
   pinMode(PIR_2, INPUT);
-  pinMode(SKIP_BUTTON, INPUT_PULLUP);
+  pinMode(ENABLE_6V, OUTPUT);
 
   pinMode(SERVO_1_PIN, OUTPUT);
   pinMode(SERVO_2_PIN, OUTPUT);
@@ -240,17 +241,17 @@ void mySleep(long mill) {
 }
 
 void s1(int angle) {
-  digitalWrite(SERVO_1_POWER, HIGH);
+  digitalWrite(ENABLE_6V, HIGH);
   servo1.write(angle);
   delay(2000);
-  digitalWrite(SERVO_1_POWER, LOW);
+  digitalWrite(ENABLE_6V, LOW);
 }
 
 void s2(int angle) {
-  digitalWrite(SERVO_2_POWER, HIGH);
+  digitalWrite(ENABLE_6V, HIGH);
   servo2.write(angle);
   delay(2000);
-  digitalWrite(SERVO_2_POWER, LOW);
+  digitalWrite(ENABLE_6V, LOW);
 }
 
 void loop() {
