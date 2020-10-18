@@ -2,18 +2,18 @@
 #define LAT -43.388018
 #define LONG 172.525346
 
-#define MINUTES_AFTER_SS 150       //Number of minutes after sunset before starting trap
-#define MINUTES_BEFORE_SR 60      //Number of minutes before sunrise to stop trap
+#define MINUTES_AFTER_SS 150       // Number of minutes after sunset before starting trap
+#define MINUTES_BEFORE_SR 60       // Number of minutes before sunrise to stop trap
 
-#include <RTClib.h>       //https://github.com/adafruit/RTClib
+#include <RTClib.h>                // https://github.com/adafruit/RTClib
 #include <Servo.h>
 #include <Dusk2Dawn.h>    //https://github.com/dmkishi/Dusk2Dawn
 
 
-#define PIR_1 7     // Using PIR_3 for now. Original PIR_1 jumpered. 
+#define PIR_1 7                    // Using PIR_3 for now. Original PIR_1 jumpered. 
 #define PIR_2 13 
 
-#define SKIP_BUTTON 20 // !NOT mounted. DO NOT USE. Pin reference only. 
+#define SKIP_BUTTON 20             // !NOT mounted. DO NOT USE. Pin reference only. 
 
 #define SERVO_1_PIN 5
 #define SERVO_1_POWER 17
@@ -27,7 +27,7 @@ Servo servo2;
 
 RTC_DS1307 rtc;
 
-bool runAtDay = true;
+bool runAtDay = false;
 
 Dusk2Dawn d2d_chch(LAT, LONG, 12);
 
@@ -68,15 +68,21 @@ void setup() {
     }
   }
 
-  // init servos
+  /* 
+  * init servos
+  * S1: 0 --> 60
+  * S2: 45 --> 140
+  */ 
   Serial.println("Resetting servos to 0");
   s1(0);
   s2(0);  
 
   // Setup Servo 2 (back door) to 45 degrees
-  mySleep(10000);
+  delay(5000);
   s2(45);
   mySleep(10000);
+
+  delay(10000);
 
   // PIR 1 Wait for signal then trigger
   Serial.println("Waiting for PIR 1");
@@ -85,12 +91,14 @@ void setup() {
   s1(60);
   s1(0);
 
+  // PIR 2 Wait for signal then trigger
   mySleep(10000);
   Serial.println("Waiting for PIR 2");
   waitFor(PIR_2, HIGH);
   Serial.println("Sweeping servo 2");
   s2(210);
 }
+
 
 void initRTC() {
   if (! rtc.begin()) {
@@ -197,6 +205,7 @@ void printDateTime(DateTime now) {
 void waitFor(int pin, int level) {
   while(true) {
     waitForNight();
+
     if (digitalRead(pin) == level) {
       Serial.println("triggered");
       break;
@@ -224,6 +233,7 @@ void waitForNight() {
       Serial.println("late night");
       break;
     }
+
     Serial.println("waiting for night");
     mySleep(2000);
   }
