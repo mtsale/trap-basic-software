@@ -7,7 +7,7 @@
 
 #include <RTClib.h>                // https://github.com/adafruit/RTClib
 #include <Servo.h>
-#include <Dusk2Dawn.h>    //https://github.com/dmkishi/Dusk2Dawn
+#include <Dusk2Dawn.h>             // https://github.com/dmkishi/Dusk2Dawn
 
 
 #define PIR_1 7                    // Using PIR_3 for now. Original PIR_1 jumpered. 
@@ -49,15 +49,13 @@ void setup() {
   Serial.begin(57600);
   Serial.println("Starting setup");
 
-  //run_test();
-  //set_time();   //TODO
-
+  
   // run_test();
   // set_time();   //TODO
   setup_rtc();
 
   if (!runAtDay) {
-    initRTC();
+    initRTC();                      //? Is this redundant since because of setup_rtc()? 
   }
 
   // Booting LED sequence. If skip button is held set to run at the day also.
@@ -66,10 +64,6 @@ void setup() {
     delay(500);
     digitalWrite(STATUS_LED, LOW);
     delay(500);
-    if (digitalRead(SKIP_BUTTON) == LOW) {
-      Serial.println("Enable running at day time");
-      runAtDay = true;
-    }
   }
 
   /* 
@@ -84,7 +78,6 @@ void setup() {
   // Setup Servo 2 (back door) to 45 degrees
   delay(5000);
   s2(45);
-  mySleep(10000);
 
   delay(10000);
 
@@ -100,7 +93,7 @@ void setup() {
   Serial.println("Waiting for PIR 2");
   waitFor(PIR_2, HIGH);
   Serial.println("Sweeping servo 2");
-  s2(210);
+  s2(140);
 }
 
 
@@ -110,28 +103,29 @@ void initRTC() {
     while (true) {
       //TODO LED flash sequence to indicate RTC not found.
     }
-  } else {
-    Serial.println("Found RTC");
-  }
+    else {
 
-  if (rtc.lostPower()) {
-    Serial.println("RTC lost power!!!");
-    while (true) {
-      //TODO LED flash sequence to indicate RTC lost power.
     }
-  }
+  } 
 
-  if (!rtc.initialized()) {
-    Serial.println("RTC not initialized!!!");
-    while (true) {
-      //TODO LED flash sequence to indicate RTC is not initialized.
-    }
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running, let's set the time!");
+    // When time needs to be set on a new device, or after a power loss, the
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
-  rtc.start();
+  else if (rtc.isrunning()) {
+    Serial.println("RTC is already running");
+  } 
+
   printDateTime(rtc.now());
 }
 
 void set_time() {
+  Serial.println("Setting the RTC time to local compile time");
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC!!!");
     while (true) {
@@ -155,23 +149,9 @@ void run_test() {
     Serial.println("Couldn't find RTC");
   } else {
     Serial.println("Found RTC");
-    rtcInitialized = rtc.initialized();
-    if (rtcInitialized) {
-      Serial.println("Starting RTC");
-      rtc.start();
-    } {
-      Serial.println("RTC is NOT initialized!");
-    }
+  
   }
   
-
-  while (digitalRead(SKIP_BUTTON) == HIGH) {
-    
-    digitalWrite(STATUS_LED, HIGH);
-    delay(200);
-    digitalWrite(STATUS_LED, LOW);
-    delay(200);
-  }
 
   while(true) {
     if (rtcConnected && rtcInitialized) {
@@ -220,13 +200,13 @@ void waitFor(int pin, int level) {
 
 void waitForNight() {
   if (runAtDay) {
-    //Serial.println("run at day time");
+    Serial.println("Running in 24hr mode (Day + Night)");
     return;
   }
   while(true) {
     DateTime now = rtc.now();
     int minutesFromMidnight = now.hour()*60 + now.minute();
-    int startMinute = d2d_chch.sunset(now.year(), now.month(), now.day(), false) + MINUTES_AFTER_SS;
+    int startMinute = d2d_chch.sunset(now.year(), now.month(), now.day(), false) + MINUTES_AFTER_SS; // TODO: daylight savings (bool)
     int stopMinute = d2d_chch.sunrise(now.year(), now.month(), now.day(), false) - MINUTES_BEFORE_SR;
     
     if (minutesFromMidnight < stopMinute) {
@@ -271,10 +251,8 @@ void mySleep(long mill) {
   WDTCSR = (24);
   WDTCSR = (33);
   WDTCSR |= (1<<6);
-
   //Disable ADC
   ADCSRA &= ~(1<<7);
-
   //Enable Sleep
   SMCR |= (1<<2);
   SMCR |= 1;
@@ -298,5 +276,5 @@ void s2(int angle) {
 }
 
 void loop() {
-  mySleep(1000);  
+  mySleep(1000); 
 }
