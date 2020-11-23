@@ -2,26 +2,70 @@
 #define LAT -43.388018
 #define LONG 172.525346
 
-#define MINUTES_AFTER_SS 150       // Number of minutes after sunset before starting trap
-#define MINUTES_BEFORE_SR 60       // Number of minutes before sunrise to stop trap
+#define MINUTES_AFTER_SS       150  // Number of minutes after sunset before starting trap
+#define MINUTES_BEFORE_SR       60  // Number of minutes before sunrise to stop trap
 
-#include <RTClib.h>                // https://github.com/adafruit/RTClib
-#include <Servo.h>
-#include <Dusk2Dawn.h>             // https://github.com/dmkishi/Dusk2Dawn
+#define SONAR_NUMF              2   // Number of sensors.(3)
+#define SONAR_NUMB              2
+#define MAX_DISTANCE_FRONT    200   // Maximum distance (in cm) to ping (trap wall)
+#define MAX_DISTANCE_BACK     100   // Maximum distance (in cm) to ping. (back) 
+#define SENSITIVITY             4   // The difference (cm) in readings for the sensor to detect movement
+
+// Front Trap Ultrasonics
+#define triggerPin_front1       8    // 2 alternate sensors connected to this line
+#define triggerPin_front2       9    // middle ultrasonic sensors connected to this
+#define echoPin_front          12    // Front sensors share the same echo
+
+// Back Trap Ultrasonics (x2)
+#define triggerPin_back        11    // 1 trigger shared by both back cage sensors
+#define echoPin_back1           0     // trigger for closing the trap back door
+#define echoPin_back2           1     // furthest cage   
+
+// PIR Sensors
+#define PIR_1                   2     
+#define PIR_2                   7     // Main front trap PIR
+#define PIR_3                  13
+
+// Peripherals
+#define SKIP_BUTTON            20     // A6    
+#define MODE_BUTTON            21    // A7 HIGH = run during day
+#define STATUS_LED              2          
+
+// Servos
+#define SERVO_1_PIN             5
+#define SERVO_1_POWER          17
+#define SERVO_2_PIN             6
+#define SERVO_2_POWER          17
+#define SERVO_3_PIN            10
+#define SERVO_3_POWER          17
+#define ENABLE_6V              A0
+
+// Door Angles (Final pos)
+#define FRONT_SERVO_ANGLE      60
+#define BACK_SERVO_ANGLE      140
+
+// Linear Actuator
+#define MOTOR_ENABLE            3
+#define MOTOR_DIRECTION         4
 
 
-#define PIR_1 7                    // Using PIR_3 for now. Original PIR_1 jumpered. 
-#define PIR_2 13 
+// Declare global variables
+bool frontTriggered, backTriggered = false;
 
-#define SKIP_BUTTON 20             // !NOT mounted. DO NOT USE. Pin reference only. 
+/* NewPing Library ultrasonics set up. Add/Delete sensors as required
+*  Each sensor's trigger pin, echo pin, and max distance to ping.
+*/
+NewPing sonarFront[SONAR_NUMF] = {                                // Sensor object array for Front cage sensors.
+  NewPing(triggerPin_front1, echoPin_front, MAX_DISTANCE_FRONT),  // 2 sensors attached to these pins! 
+  NewPing(triggerPin_front2, echoPin_front, MAX_DISTANCE_FRONT)   // (middle centre ultrasonic) 
+};
 
-#define SERVO_1_PIN 5
-#define SERVO_1_POWER 17
-#define SERVO_2_PIN 6
-#define SERVO_2_POWER 17
-#define STATUS_LED 2
-#define ENABLE_6V A0
+NewPing sonarBack[SONAR_NUMB] = {                                 // Sensor object array.
+  NewPing(triggerPin_back, echoPin_back1, MAX_DISTANCE_BACK),      
+  NewPing(triggerPin_back, echoPin_back2, MAX_DISTANCE_BACK) 
+};
 
+// Servos
 Servo servo1;
 Servo servo2;
 
