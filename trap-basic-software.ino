@@ -87,19 +87,25 @@ NewPing sonarBack[SONAR_NUMB] = {                                 // Sensor obje
 Servo servo1;
 Servo servo2;
 
+// RTC & Time
 RTC_DS1307 rtc;
+Dusk2Dawn d2d_chch(LAT, LONG, 12);
 
+// Day or Night mode
 bool runAtDay = false;
 
-Dusk2Dawn d2d_chch(LAT, LONG, 12);
+int lastDistance = MAX_DISTANCE_FRONT;
 
 void setup() {
   pinMode(PIR_1, INPUT);
   pinMode(PIR_2, INPUT);
+  pinMode(PIR_3, INPUT);
+  
   pinMode(ENABLE_6V, OUTPUT);
 
   pinMode(SERVO_1_PIN, OUTPUT);
   pinMode(SERVO_2_PIN, OUTPUT);
+  // pinMode(SERVO_3_PIN, OUTPUT);
   pinMode(SERVO_1_POWER, OUTPUT);
   digitalWrite(SERVO_1_POWER, LOW);
   digitalWrite(SERVO_2_POWER, LOW);
@@ -128,7 +134,7 @@ void setup() {
 
   // RTC, servos, sensors etc. 
   setupTrap();
-  
+
   // Run trap if daylight criteria is met
   waitForNight();
   
@@ -398,12 +404,13 @@ void printDateTime(DateTime now) {
 void waitFor(int pin, int level) {
   while(true) {
     waitForNight();
+    Serial.println(digitalRead(pin));
 
     if (digitalRead(pin) == level) {
       Serial.println("triggered");
       break;
     }
-    mySleep(100);
+    delay(100);
   }
 }
 
@@ -432,7 +439,7 @@ void waitForNight() {
     }
 
     Serial.println("waiting for night");
-    mySleep(2000);
+    delay(2000);
   }
 }
 
