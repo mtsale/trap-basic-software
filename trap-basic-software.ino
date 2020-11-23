@@ -108,19 +108,56 @@ void setup() {
   servo1.attach(SERVO_1_PIN);
   servo2.attach(SERVO_2_PIN);
   
+  pinMode(STATUS_LED, OUTPUT);
+  pinMode(MODE_BUTTON, INPUT_PULLUP);
+  pinMode(SKIP_BUTTON, INPUT_PULLUP);
+
+
+  // Check if Day mode is on
+  if (digitalRead(MODE_BUTTON) == LOW) {
+    Serial.println("MODE set to 24hr");
+    runAtDay = true;
+  } 
+  if (digitalRead(MODE_BUTTON) == HIGH){
+    Serial.println("~NIGHT MODE~");
+    runAtDay = false;
+  }
+
   Serial.begin(57600);
   Serial.println("Starting setup");
 
+  // RTC, servos, sensors etc. 
+  setupTrap();
   
-  // run_test();
-  // set_time();   //TODO
+  // Run trap if daylight criteria is met
+  waitForNight();
+  
+  runTrap();
+
+  Serial.println("Sequence Complete");
+
+}
+
+void loop() {
+  delay(1000);
+}
+
+/*
+ * This function includes the set up of the trap RTC and electro-mechanical components
+ * RTC: DS1307
+ * Servo 1: Front 
+ * Servo 2: Trap door
+ */
+void setupTrap() {
+  Serial.println("Starting setup");
+  
   setup_rtc();
 
   if (!runAtDay) {
-    initRTC();                      //? Is this redundant since because of setup_rtc()? 
+    initRTC();                      
   }
 
-  // Booting LED sequence. If skip button is held set to run at the day also.
+  // Booting LED sequence.
   for (int i = 0; i <= 20; i++) {
     digitalWrite(STATUS_LED, HIGH);
     delay(500);
