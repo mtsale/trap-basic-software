@@ -110,7 +110,6 @@ void setup() {
   digitalWrite(SERVO_1_POWER, LOW);
   digitalWrite(SERVO_2_POWER, LOW);
   pinMode(SERVO_2_POWER, OUTPUT);
-  pinMode(STATUS_LED, OUTPUT);
   servo1.attach(SERVO_1_PIN);
   servo2.attach(SERVO_2_PIN);
   
@@ -130,7 +129,6 @@ void setup() {
   }
 
   Serial.begin(57600);
-  Serial.println("Starting setup");
 
   // RTC, servos, sensors etc. 
   setupTrap();
@@ -327,8 +325,6 @@ void initRTC() {
     }
    }
   
-    }
-  } 
 
   if (! rtc.isrunning()) {
     Serial.println("RTC is NOT running, let's set the time!");
@@ -369,13 +365,6 @@ void set_time() {
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 }
 
-void run_test() {
-  bool rtcConnected = rtc.begin();
-  bool rtcInitialized = false;
-  if (!rtcConnected) {
-    Serial.println("Couldn't find RTC");
-  } else {
-    Serial.println("Found RTC");
 
 /*
  * Prints out the formatted date and time 
@@ -474,9 +463,6 @@ void setup_rtc() {
 /*
  * Set servo angles
  */
-  delay(mill);
-}
-
 void s1(int angle) {
   digitalWrite(ENABLE_6V, HIGH);
   servo1.write(angle);
@@ -489,8 +475,4 @@ void s2(int angle) {
   servo2.write(angle);
   delay(2000);
   digitalWrite(ENABLE_6V, LOW);
-}
-
-void loop() {
-  mySleep(1000); 
 }
