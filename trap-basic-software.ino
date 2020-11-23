@@ -273,14 +273,17 @@ void runTrap() {
 }
 
 
+/*
+ * Initialize the RTC 
+ */
 void initRTC() {
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC!!!");
     while (true) {
       //TODO LED flash sequence to indicate RTC not found.
     }
-    else {
-
+   }
+  
     }
   } 
 
@@ -300,6 +303,11 @@ void initRTC() {
   printDateTime(rtc.now());
 }
 
+
+/*
+ * Set the time on the RTC
+ * This function is manually called/run when setting up the Nano upon upload
+ */
 void set_time() {
   Serial.println("Setting the RTC time to local compile time");
   if (!rtc.begin()) {
@@ -325,28 +333,10 @@ void run_test() {
     Serial.println("Couldn't find RTC");
   } else {
     Serial.println("Found RTC");
-  
-  }
-  
 
-  while(true) {
-    if (rtcConnected && rtcInitialized) {
-      printDateTime(rtc.now());
-    }
-    Serial.println("moving Servo 1");
-    s1(0);
-    s1(90);
-    Serial.println("moving Servo 2");
-    s2(0);
-    s2(90);
-    Serial.print("PIR1: ");
-    Serial.println(digitalRead(PIR_1));
-    Serial.print("PIR2: ");
-    Serial.println(digitalRead(PIR_2));
-    delay(100);
-  }
-}
-
+/*
+ * Prints out the formatted date and time 
+ */
 void printDateTime(DateTime now) {
     Serial.print(now.year(), DEC);
     Serial.print('/');
@@ -362,6 +352,12 @@ void printDateTime(DateTime now) {
     Serial.println();
 }
 
+
+/*
+ * Loop which waits for pin to reach a specified digital level 
+ * @input: digital pin (int)
+ * @input: logic level (int)
+ */
 void waitFor(int pin, int level) {
   while(true) {
     waitForNight();
@@ -374,6 +370,10 @@ void waitFor(int pin, int level) {
   }
 }
 
+
+/*
+ * Reference RTC to loop and wait for night time defined by user minutes before sunset / sunrise.
+ */
 void waitForNight() {
   if (runAtDay) {
     Serial.println("Running in 24hr mode (Day + Night)");
@@ -399,6 +399,10 @@ void waitForNight() {
   }
 }
 
+
+/*
+ * Set up the RTC and print the current datetime (boilerplate code)
+ */
 void setup_rtc() {
     if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -422,18 +426,10 @@ void setup_rtc() {
 
 }
 
-void mySleep(long mill) {
-  /*
-  WDTCSR = (24);
-  WDTCSR = (33);
-  WDTCSR |= (1<<6);
-  //Disable ADC
-  ADCSRA &= ~(1<<7);
-  //Enable Sleep
-  SMCR |= (1<<2);
-  SMCR |= 1;
-  __asm__ __volatile("sleep");
-  */
+
+/*
+ * Set servo angles
+ */
   delay(mill);
 }
 
