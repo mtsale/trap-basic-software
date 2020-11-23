@@ -28,6 +28,7 @@
 #define MAX_DISTANCE_FRONT    200   // Maximum distance (in cm) to ping (trap wall)
 #define MAX_DISTANCE_BACK     100   // Maximum distance (in cm) to ping. (back) 
 #define SENSITIVITY             4   // The difference (cm) in readings for the sensor to detect movement
+#define TRIGGER_DELAY         250   // ms delay between when trap is detecs and triggers
 
 // Front Trap Ultrasonics
 #define triggerPin_front1       8    // 2 alternate sensors connected to this line
@@ -260,6 +261,7 @@ void runTrap() {
           }
          
           Serial.println("Sweeping servo 1");
+          delay(TRIGGER_DELAY);
           s1(FRONT_SERVO_ANGLE);
           s1(0);
           Serial.println("FRONT CAGE TRIGGERED");
