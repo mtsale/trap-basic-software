@@ -143,19 +143,133 @@ void setup() {
 
   delay(10000);
 
-  // PIR 1 Wait for signal then trigger
-  Serial.println("Waiting for PIR 1");
-  waitFor(PIR_1, HIGH);
-  Serial.println("Sweeping servo 1");
-  s1(60);
-  s1(0);
+  Serial.println("Setup Done.");
+}
 
-  // PIR 2 Wait for signal then trigger
-  mySleep(10000);
-  Serial.println("Waiting for PIR 2");
-  waitFor(PIR_2, HIGH);
-  Serial.println("Sweeping servo 2");
-  s2(140);
+
+/*
+ * Processing function which determines if trap should trigger based on user defined params
+ * @input: distance (cm)
+ * @output: Boolean - whether trap should trigger or not
+ */
+bool filterUltrasonic(uint8_t distance) {
+
+   // FRONT
+  uint8_t minimumDistance = 3; // 3cm is minimum accurate reading. Reject values <1
+
+  // Define valid distance range
+  if(distance < MAX_DISTANCE_FRONT & distance > minimumDistance) {
+    Serial.println("Valid distance");
+    int difference = distance - lastDistance;
+    Serial.print("Difference: "); Serial.println(difference);
+    lastDistance = distance;
+     if(abs(difference) > SENSITIVITY && abs(difference) < 50) {  // Filter out large jumps
+      Serial.println("ULTRASONIC MOVEMENT DETECTED");
+      return true;
+    } 
+    else {
+      return false;
+    }
+  
+  }
+ 
+}
+
+/*
+ * Trap operation sequence 
+ * 
+ * First loops through front sensors until triggered.
+ * Then loops back cage. Only coded for 1 back cage at the moment. 
+ * 
+ * PIR does not activate in 24 hour (day+night) mode.
+ * Skips to next loop or completion if SKIP BUTTON is pressed
+ * 
+ */
+void runTrap() {
+  // FRONT 
+  while(!frontTriggered) {
+      for (uint8_t i = 0; i < SONAR_NUMF; i++) { // Loop through each sensor and display results.
+        delay(50); // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+        Serial.print(i);
+        Serial.print("=");
+        uint8_t dist = sonarFront[i].ping_cm();
+        Serial.print(dist);
+        Serial.print("cm (FRONT) ");
+
+          /* 
+          // SKIP forward if TEST BUTTON is pressed. TODO: TEST this
+          if (digitalRead(SKIP_BUTTON) == LOW) {
+            Serial.println("Skipping Front Trigger");
+            Serial.println("Sweeping servo 1");
+            s1(60);
+            s1(0);
+            frontTriggered = true;
+            break;
+          }
+          */ 
+
+        // Process the readings to check for motion.
+        bool trigger = filterUltrasonic(dist);
+        if(trigger) {
+          // Cross check with PIR if NIGHT time. Ignore PIR in day. 
+          // PIR 2 Wait for signal then trigger
+          if(!runAtDay) {                        // TODO: implement at night if runAtDay. Need RTC. 
+            Serial.println("Waiting for PIR 1");
+            waitFor(PIR_2, HIGH);
+          }
+         
+          Serial.println("Sweeping servo 1");
+          s1(FRONT_SERVO_ANGLE);
+          s1(0);
+          Serial.println("FRONT CAGE TRIGGERED");
+          frontTriggered = true;
+          break; 
+        }
+        
+      }
+      Serial.println();
+  }
+
+
+  // BACK. Initiated after Front has tripped.  
+  while(frontTriggered && !backTriggered) {
+      for (uint8_t i = 0; i < SONAR_NUMB; i++) { // Loop through each sensor and display results.
+        delay(50); // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+        Serial.print(i);
+        Serial.print("=");
+        uint8_t dist = sonarBack[i].ping_cm();
+        Serial.print(dist);
+        Serial.print("cm (BACK)");
+
+        // Process the readings to check for motion.
+        bool trigger = filterUltrasonic(dist);
+        if (trigger) {
+            // Uncomment to Cross check with PIR 3 here if desired. 
+//          if(!runAtDay) {                        // TODO: implement at night if runAtDay. Need RTC. 
+//            Serial.println("Waiting for PIR 3");
+//            waitFor(PIR_3, HIGH);
+//          }
+
+          Serial.println("BACK CAGE TRIGGERED");
+          Serial.println("Sweeping servo for back cage");
+          s2(BACK_SERVO_ANGLE);
+          
+          backTriggered = true;
+          break;
+        }
+
+        /*
+        // SKIP forward if TEST BUTTON is pressed. 
+        if (digitalRead(SKIP_BUTTON) == LOW) {
+          Serial.println("Skipping Back Trigger");
+          trigger = true;
+          
+        }
+        */
+    }
+    Serial.println();
+
+  }
 }
 
 
