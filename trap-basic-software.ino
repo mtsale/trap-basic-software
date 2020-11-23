@@ -1,3 +1,21 @@
+/*
+ * Nov PCB  - Ultrasonic+PIR sensor integration
+ * US-100 sensor operating in HC-SR04 mode with NewPing library
+ * PIR also available for dual-mode operation
+ * 
+ * Additional peripherals: 
+ *    Slider Mode Button 
+ *    Skip Button (Skip to next stage)
+ *    RTC = DS1307
+ * 
+ * 
+ */
+
+#include <RTClib.h>                // https://github.com/adafruit/RTClib
+#include <Servo.h>
+#include <Dusk2Dawn.h>             // https://github.com/dmkishi/Dusk2Dawn
+#include <NewPing.h>
+
 // NZ, Christchurch locatoin
 #define LAT -43.388018
 #define LONG 172.525346
